@@ -1,6 +1,6 @@
 # sparkly
 
-![spark joy](https://media.giphy.com/media/WqKeNtyTujqTUXyqKz/giphy.gif)
+![sparkly](https://media.giphy.com/media/RwwsIbudZHVhC/giphy.gif)
 
 Look... I have no imagination for titles, not after spending 18 hours on this, most of it going down deadends. 
 
