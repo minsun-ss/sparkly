@@ -1,16 +1,20 @@
-def display(df, order=None, max_rows=10, max_cols=999):
+from IPython.display import HTML
+import numpy as np
+import io
+import matplotlib.pyplot as plt
+
+
+def display(df, order=None, type='line', max_rows=7, max_cols=999):
     ''' Builds a tiny sparkline for every numeric column of a given dataframe and integrates it as part of
     a dataframe column header. Sorry, does not accept Series as the moment!
 
     :param df: DataFrame object
     :param order: optional ordering scheme for the x-axis (otherwise defaults to the order in the dataframe)
+    :param type of view you wanna see. at the most accepts 'line' (default), and 'histogram' (for histogram)
     :param max_rows: max rows displayed to the notebook
     :param max_columns: max columns displayed to the notebook
     :return: an HTML representation of the dataframe
     '''
-    # buncha imports
-    from IPython.display import HTML
-    import numpy as np
 
     # python object handling doesn't make sense so imma gonna make a copy for now until i get a handle on this
     temp_df = df.copy()
@@ -25,49 +29,48 @@ def display(df, order=None, max_rows=10, max_cols=999):
         is_num = temp_df.select_dtypes(include=[np.number]).columns.levels[-1].values
 
     # iterates through each column and generates a matplotlib chart
-    levelcolumn = temp_df.columns.get_level_values(-1)
-    for column_name, column_data in zip(levelcolumn, range((len(temp_df.columns)))):
-        column = column_name
+    lowest_level = temp_df.columns.get_level_values(-1)
+    for column_name, column_data in zip(lowest_level, range((len(temp_df.columns)))):
         if column_name in is_num:
-            image = convert_fig(temp_df.iloc[:, column_data].values, order)
-            text = column + image
+            image = convert_fig(temp_df.iloc[:, column_data].values, order, type)
+            text = column_name + image
             temp_list.append(text)
         else:
-            temp_list.append(column)
+            temp_list.append(column_name)
 
-    # replace column headers to include html representation of the chart and returns HTML representation
+    # replace column headers to include svg chart and renderrrrrrr away
     if temp_df.columns.nlevels == 1:
         temp_df.columns = temp_list
     else:
         # build a column level mapper
-        keys = list(levelcolumn)
+        keys = list(lowest_level)
         values = temp_list
         mapper = dict(zip(keys, values))
         temp_df.rename(columns=mapper, level=-1, inplace=True)
     return HTML(temp_df.to_html(escape=False, max_rows=max_rows, max_cols=max_cols))
 
 
-def convert_fig(a_series, order):
+def convert_fig(a_series, order, type):
     ''' Maps a numeric Series as a matplotlib chart and returns a html encoded byte string.
 
     :param a_series: Series to map
     :order: specified xaxis for ordering
     '''
-    import io
-    import base64
-    import matplotlib.pyplot as plt
+
     # build tiny chart
     fig = plt.figure()
     fig.set_size_inches(3, .5)
     ax = fig.gca()
-    ax.plot(order, a_series)
+    if type=='histogram':
+        ax.hist(a_series[~np.isnan(a_series)], 20)  # 20 bins
+    else:
+        ax.plot(order, a_series)
     ax.axis('off')
 
     # save png to buffer
     buf = io.BytesIO()
-    fig.savefig(buf, format='png', bbox_inches='tight')
+    fig.savefig(buf, format='svg', bbox_inches='tight')
     buf.seek(0)
-    figdata_png = base64.b64encode(buf.getvalue())
-    encode = figdata_png.decode('UTF-8')
-    plt.close(fig) # this is to stop images from echoing to ipython
-    return '<img src="data:image/png;base64,' + encode + '">'
+    encode = buf.getvalue().decode('UTF-8')
+    plt.close(fig)  # this is to stop images from echoing to ipython
+    return encode.replace('\r\n', '')
