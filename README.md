@@ -1,16 +1,14 @@
-# sparkly
+# spkly
 
-![sparkly](https://media.giphy.com/media/12NUbkX6p4xOO4/giphy.gif)
+![spkly](https://media.giphy.com/media/12NUbkX6p4xOO4/giphy.gif)
 
 <sup>i was gonna replace this with some mamamoo gif in honor of the fact i was listening to <a href="https://www.youtube.com/watch?v=KhTeiaCezwM">hip</a> while fixing this and watching my son jiggle about dancing but nothing does 'em justice</sup>
 
-Changes!!!! November 26, 2019
+Changes, December 1, 2019
 
-* Thanks to Professor Brooks' suggestion, all the images are now svgs instead of png, which also _conveniently_ means I can nbconvert the crap out of this to HTML and the images _will now render in my html files_!!!! I would add a thousand more exclaimation points to this but that would out me as a crazy person. Just because I want to live large like <strike>Richard Garriott</strike> Lord British, I don't want to _be_ him.
-* This morphed from an extra credit assignment to a legitimate thing I'm going to use. On bus ride home, I thought... if I can do sparklines and this is really just matplotlib under the hood, why can't I also use this to generate the one chart I use mostly for throwaway analysis (histograms, mostly)? Heck, couldn't I just... use anything with matplotlib, for that matter, that I use for throwaway analysis? Could this mean... I don't have to really use matplotlib that often?
-* So now my next step is to do the part of the python experience I've never had to handle before until now: learnin' how to build a package. And writing whatever is python's equivalent of javadoc! Yeah, baby steps here.
+* Changed name because pypi needs something unique and I wanted a short package name anyway.
 
-## Intro to sparkly
+## Intro to spkly
 Look... I have no imagination for title names, not after spending 18 hours on this, most of it going down deadends.
 
 * Pandas styler options? Nope. I still think this is a viable route, though.
@@ -22,10 +20,10 @@ Look... I have no imagination for title names, not after spending 18 hours on th
 
 ## Getting Started
 
-These instructions will get your sparkly sparkline thing going. Put the python file somewhere convenient. Then:
+These instructions will get your spkly sparkline thing going. Put the python file somewhere convenient. Then:
 
 ```
-import sparkly
+import spkly
 ```
 
 Yes, that's it. I will make it fancier in the future, but you'll have to catch me at a time when I have a better handle on python101 stuff like classes, modules, packages...
@@ -40,11 +38,11 @@ Yes, that's it. I will make it fancier in the future, but you'll have to catch m
 ### Wait, how do I view a sparkline on my data?
 
 ```
-sparkly.display(df)
+spkly.display(df)
 ```
 Some of the optional flags available:
 ```
-sparkly.display(df, order=None, type='line', max_rows=7, max_cols=999)
+spkly.display(df, order=None, type='line', max_rows=7, max_cols=999)
 ```
 * *dataframe*: pandas dataframe for generating sparklines. Plots generated are based on order within the dataframe (meaning dataframe sorts will generate different sparklines if you do not specify some order), see below for examples of this behavior
 * *order*: Series of same length as df for x-axis ordering, e.g., use df.index if you want the chart to be sorted by df.index values. Probably can accept more than a series, like a list and suchlike... so long as matplotlib will accept it for an x-axis, then sure, this will accept it too
@@ -61,7 +59,7 @@ sparkly.display(df, order=None, type='line', max_rows=7, max_cols=999)
 import pandas as pd
 import numpy as np
 import datetime
-import sparkly
+import spkly
 import random
 
 df = pd.read_csv('samplefile.csv')
@@ -71,7 +69,7 @@ df.replace('*', '', inplace=True)
 df = df.apply(pd.to_numeric)
 df.reset_index(inplace=True)
 
-sparkly.display(df)
+spkly.display(df)
 ```
 
 
@@ -261,7 +259,7 @@ sparkly.display(df)
 df2 = df.copy()
 df2.sort_values(by='UMBSTradeCount', inplace=True)
 
-sparkly.display(df2)
+spkly.display(df2)
 ```
 
 
@@ -451,7 +449,7 @@ sparkly.display(df2)
 df3 = df.copy()
 df3 = df2.groupby(['AssetClass', 'Date']).mean()
 
-sparkly.display(df3)
+spkly.display(df3)
 ```
 
 
@@ -643,7 +641,7 @@ df4 = df4.groupby(['AssetClass', 'Date']).agg({
     'FNMA$Trades': np.mean
 })
 
-sparkly.display(df4)
+spkly.display(df4)
 ```
 
 
@@ -735,7 +733,7 @@ df5 = df.copy()
 random_counter = [random.randint(1, 2000000) for i in df5.index]
 df5['counter'] = random_counter
 
-sparkly.display(df=df5, order=df5['counter'])
+spkly.display(df=df5, order=df5['counter'])
 ```
 
 
@@ -930,7 +928,7 @@ sparkly.display(df=df5, order=df5['counter'])
 
 
 ```python
-sparkly.display(df=df, max_rows=5, max_cols=6)
+spkly.display(df=df, max_rows=5, max_cols=6)
 ```
 
 
@@ -1068,7 +1066,7 @@ sparkly.display(df=df[['UMBSTradeCount', 'FNMATradeCount', 'FHLMCTradeCount']], 
 
 
 ```python
-sparkly.display(df=df, type='histogram')
+spkly.display(df=df, type='histogram')
 ```
 
 
@@ -1252,17 +1250,6 @@ sparkly.display(df=df, type='histogram')
 
 
 And that's all, folks! I think it's pretty cool for what was basically a few hours of work of actual coding and like hours and hours of furious spelunking through stackoverflow to patch together the concept I had in mind. 
-
-### Next Steps
-
-* Building better error handling... there's, like, none in this. What's this 'try, except' thing you speak of? Unit testing? Whazzat? 
-* More testing. I think I covered a lot of edge cases but you can only test so much within a short time frame. Right now I know that the jupyter notebook renderer in github wigs out on rendering the html for the table, at least when I looked at the .ipynb file on Safari.
-* Being able to use user defaults from pandas for max row, max column display as a starting default
-* Being able to generate charts on a groupby row level.
-* I wish there was some way to keep styling and return a df and not an html but I am stumped as to how at the moment and not ready to override random ```__repl__``` methods just yet. 
-* ~~Seeing if I can get nbconvert to include the charts~~
-* ~~Getting extra credit for this??? I know it's not an ipywidget but it works?~~
-
 
 # Author
 
